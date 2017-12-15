@@ -41,8 +41,7 @@ expected worst-case time complexity is O(N);
 expected worst-case space complexity is O(N), beyond input storage (not counting the storage required for input arguments).
 Elements of input arrays can be modified.
 
-Первое решение - не мое. Разобрать. Мое очень медленно.
-
+Первое решение - не мое.
 """
 
 def check(start, end):
@@ -119,7 +118,7 @@ def solution1(A):
     return check( cur[0], cur[1] )
 
 #***********************************************
-
+# My extremely slow
 def iterate(a):
     l = len(a)
     for j in range(l): # Первый символ
@@ -198,60 +197,144 @@ def solution2(a):
 """
 Тут мы исходим из того, что для победы в остатке должно быть только одно нечетное число посередние, а слева и справа поровну четных
 """
-
-def iterate_array(a):
-    l = len(a)
-    for j in range(l): # Первый символ
-        for i in range(1, l + 1- j): # Длина
-            cur = a[j:j + i]
-            if sum(cur) % 2 == 1:
-                continue
-            left = a[:j] + a[j + i:]
-            if left and sum(left) % 2 == 0:
-                continue
-            yield (left, i, j)
-
-
-def _solution(a):
-    for left, i, j in iterate_array(a):
-        if not left:
-            return (0, len(a) - 1)
-        l = len(left)
-        if l == 1:
-            return (j, j + i - 1)
-        if l == 2:
-            continue
-        odd_count = 0
-        left_even_count = 0
-        right_even_count = 0
-        odd_index = None
-        for s in left:
-            if s % 2 == 1:
-                odd_count += 1
-                odd_index = j
-            else:
-                if odd_index is None:
-                    left_even_count += 1
-                else:
-                    right_even_count += 1
-            if odd_count == 2:
-                break
-        if odd_count == 1 and left_even_count == right_even_count:
-            return (j, j + i - 1)
-
+# My some errors + slow
 def solution3(a):
+    L = len(a)
+    def iterate_array(a):
+        for j in range(L):  # Первый символ
+            for i in range(1, L + 1 - j):  # Длина
+                cur = a[j:j + i]
+                if sum(cur) % 2 == 1:
+                    continue
+                left = a[:j] + a[j + i:]
+                if left and sum(left) % 2 == 0:
+                    continue
+                yield (left, i, j)
+
+    def _solution(a):
+        for left, i, j in iterate_array(a):
+            if not left:
+                return (0, len(a) - 1)
+            if L == 1:
+                return (j, j + i - 1)
+            elif L == 2:
+                continue
+            odd_count = 0
+            left_even_count = 0
+            right_even_count = 0
+            odd_index = None
+            for s in left:
+                if s % 2 == 1:
+                    odd_count += 1
+                    odd_index = j
+                else:
+                    if odd_index is None:
+                        left_even_count += 1
+                    else:
+                        right_even_count += 1
+                if odd_count == 2:
+                    break
+            if odd_count == 1 and left_even_count == right_even_count:
+                return j, j + i - 1
+
     res = _solution(a)
     if res:
         return "{},{}".format(res[0], res[1])
     else:
         return "NO SOLUTION"
 
+# My 100%
+def solution4(A):
+    def _format_result(result):
+        if result:
+            return "{},{}".format(result[0], result[1])
+        else:
+            return "NO SOLUTION"
+
+    def _solution(A, L, reversed):
+        first_evens_count = 0
+        odds_count = 0
+        second_evens_count = 0
+        odd_index = None
+        for i in range(L):
+            cur = A[i]
+            if cur % 2 == 0:
+                if odds_count == 0:
+                    first_evens_count += 1
+                elif odds_count == 1:
+                    second_evens_count += 1
+            else:
+                odds_count += 1
+                if odd_index is None:
+                    odd_index = i
+
+            if odds_count == 2 or second_evens_count == first_evens_count:
+                required_evens_count = first_evens_count - second_evens_count
+                first_index = odd_index + second_evens_count + 1
+                if not reversed:
+                    for j in range(L - 1, odd_index, -1):
+                        if required_evens_count == first_evens_count:
+                            break
+                        cur = A[j]
+                        if cur % 2 == 0:
+                            required_evens_count += 1
+                            second_evens_count -= 1
+                            first_index -= 1
+
+
+                second_index = L - required_evens_count
+                slice_to_check = A[first_index: second_index]
+                if slice_to_check and sum(slice_to_check) % 2 == 0:
+                    left = A[second_index:]
+                    if all(i % 2 == 0 for i in left):
+                        return first_index, second_index - 1
+                return
+
+    L = len(A)
+    if L == 1:
+        if A[0] % 2 == 0:
+            return _format_result((0, 0))
+        else:
+            return _format_result(None)
+    result_candidates = []
+    if sum(A) % 2 == 0:
+        result_candidates.append((0, L - 1))
+    if sum(A[:-1]) % 2 == 0 and A[-1] % 2 == 1:
+        result_candidates.append((0, L - 2))
+    if sum(A[1:]) % 2 == 0 and A[0] % 2 == 1:
+        result_candidates.append((1, L - 1))
+
+    B = list(reversed(A))
+    result = _solution(B, L, reversed=True)
+    if not result:
+        result = _solution(A, L, reversed=False)
+    else:
+        result = (L - result[1] - 1, L - result[0] - 1)
+    if result:
+        result_candidates.append(result)
+
+    if not result_candidates:
+        return _format_result(None)
+    best = result_candidates[0]
+    iter_candidates = result_candidates.__iter__()
+    iter_candidates.__next__()
+    for candidate in iter_candidates:
+        if candidate[0] <= best[0] and candidate[1] <= best[1]:
+            best = candidate
+
+    return _format_result(best)
 
 
 
+A = [1]
+sol4 = solution4(A)
+sol1 = solution1(A)
+print(sol1, sol4)
+
+import os
+os._exit(0)
 
 
-#A = [1,1,2,2,2]
 #A = [2, 2, 7, 2]
 #A = [1,2,3,4,5]
 #A = [4,5,3,7,2]
@@ -260,10 +343,10 @@ def solution3(a):
 #A = [2, 2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 2]
 #A = [2, 2, 3, 3, 3, 2, 2, 2]
 
-#sol1 = solution1(A)
-#sol2 = solution2(A)
-#sol3 = solution3(A)
-#print(sol1, sol2, sol3)
+sol1 = solution1(A)
+sol2 = solution2(A)
+sol4 = solution4(A)
+print(sol1, sol2, sol4)
 
 """
 for cur, left, i, j in iterate(A):
@@ -273,15 +356,19 @@ for cur, left, i, j in iterate(A):
 import random, math
 
 import time
+# print(sol1, sol2)
+import math
+import random
+import time
 
 time1 = 0
 time2 = 0
-time3 = 0
+time4 = 0
 
 for x in range(100):
     l = []
-    for y in range(15):
-        cur = math.ceil(random.random()*9)
+    for y in range(229):
+        cur = math.ceil(random.random()*2)
         l.append(cur)
     start = time.time()
     sol1 = solution1(l)
@@ -289,17 +376,17 @@ for x in range(100):
     time1 += end - start
 
     start = time.time()
-    sol2 = solution2(l)
+    #sol2 = solution2(l)
     end = time.time()
     time2 += end - start
 
     start = time.time()
-    sol3 = solution3(l)
+    sol4 = solution4(l)
     end = time.time()
-    time3 += end - start
+    time4 += end - start
     #print(l, sol2)
-    if sol1 != sol3:
-        print('sol1=', sol1,'sol3=', sol3, l)
+    if sol1 != sol4:
+        print('sol1=', sol1,'sol4=', sol4, l)
 
 
-print(time1, time2, time3)
+print(time1, time2, time4)
