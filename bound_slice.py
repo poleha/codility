@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import random
 import math
-#A = [3, 5, 7, 6, 3]
-#A = [4, 5, 5, 1, 1]
-#A = [3, 5, 7, 6]
-#A = [3, 5, 3, 5, 3, 8]
+import random
+
+# A = [3, 5, 7, 6, 3]
+# A = [4, 5, 5, 1, 1]
+# A = [3, 5, 7, 6]
+# A = [3, 5, 3, 5, 3, 8]
 
 """
 https://codility.com/programmers/task/count_bounded_slices/
@@ -57,8 +58,10 @@ Elements of input arrays can be modified.
 """
 from measure import measure
 
-#O(N), 90%
+# O(N), 90%
 max_int = 1000000000
+
+
 @measure
 def solution1(K, A):
     count = 0
@@ -84,9 +87,12 @@ def solution1(K, A):
             if cur > mx: mx = cur
     return count
 
-#*************************
-# Their example. Mine is little faster.
+
+# *************************
+# Their example. Mine soluton8 is little faster. My copy solution9 is below.
 maxINT = 1000000000
+
+
 @measure
 def solution2(K, A):
     N = len(A)
@@ -127,7 +133,8 @@ def solution2(K, A):
             firstMax += 1
     return result
 
-#*********************************
+
+# *********************************
 
 """
 n1 => 1
@@ -136,6 +143,8 @@ n1, n2, n3 => 3 + 2 + 1 = 6
 n1, n2, n3, n4 => 4 + 3 + 2 + 1 = 10
 n1, n2, n3, n4, n5 => 5 + 4 + 3 + 2 + 1 = 15
 """
+
+
 @measure
 def solution3(K, A):
     L = len(A)
@@ -154,10 +163,11 @@ def solution3(K, A):
     return count
 
 
-
-#*************** 90%
+# *************** 90%
 from collections import defaultdict
+
 max_int = 1000000000
+
 
 @measure
 def solution4(K, A):
@@ -189,15 +199,16 @@ def solution4(K, A):
     return count
 
 
-#****************************************
+# ****************************************
 # 60%
 max_int = 1000000000
+
 
 @measure
 def solution5(K, A):
     L = len(A)
     count = L
-    results = {i:(A[i], A[i]) for i in range(L)}
+    results = {i: (A[i], A[i]) for i in range(L)}
     for i in range(L - 1):
         new_results = {}
         for j in results.keys():
@@ -216,9 +227,11 @@ def solution5(K, A):
     return count
 
 
-#**************************
-#90%
+# **************************
+# 90%
 max_int = 1000000000
+
+
 @measure
 def solution6(K, A):
     L = len(A)
@@ -246,9 +259,11 @@ def solution6(K, A):
     return count
 
 
-#**************************
+# **************************
 
 max_int = 1000000000
+
+
 @measure
 def solution7(K, A):
     L = len(A)
@@ -295,11 +310,13 @@ def solution7(K, A):
                 mx_position = head
     return count
 
-#***************************************
+
+# ***************************************
 max_int = 1000000000
 
+
 @measure
-#100%!!!!!!!!!!!!!!!!
+# 100%!!!!!!!!!!!!!!!!
 def solution8(K, A):
     L = len(A)
     count = 0
@@ -345,23 +362,64 @@ def solution8(K, A):
     return count
 
 
-A = [5, 5, 4, 2, 4]
-K = 1
+# *********************
+# My copy of their solution
+max_int = 1000000000
 
-s1 = solution2(K, A)
-s8 = solution8(K, A)
-dif = s1 - s8
+
+@measure
+def solution9(K, A):
+    L = len(A)
+    min_q = [0 for _ in range(L)]
+    min_pos = [0 for _ in range(L)]
+    max_q = [0 for _ in range(L)]
+    max_pos = [0 for _ in range(L)]
+    first_max = first_min = 0
+    last_max = last_min = -1
+    j = count = 0
+    for i in range(L):
+        while j < L:
+            cur = A[j]
+            while first_max <= last_max and max_q[last_max] <= cur:
+                last_max -= 1
+            last_max += 1
+            max_q[last_max] = cur
+            max_pos[last_max] = j
+
+            while first_min <= last_min and min_q[last_min] >= cur:
+                last_min -= 1
+            last_min += 1
+            min_q[last_min] = cur
+            min_pos[last_min] = j
+
+            if max_q[first_max] - min_q[first_min] <= K:
+                j += 1
+            else:
+                break
+        count += (j - i)
+        if max_pos[first_max] == i:
+            first_max += 1
+        if min_pos[first_min] == i:
+            first_min += 1
+    return count
+
+
+A = [1, 2, 5]
+K = 3
+
+s2 = solution2(K, A)
+s9 = solution9(K, A)
+dif = s2 - s9
 if dif != 0:
-    print(s1, s8)
+    print(s2, s9)
 
-import os
-os._exit(0)
+# os._exit(0)
 
 for k in range(1000):
     l = []
     N = math.ceil(random.random() * 50)
     for n in range(50):
-        s = 1 #random.choice((-1, 1))
+        s = 1  # random.choice((-1, 1))
         l.append(s * math.ceil(random.random() * 50))
     s1 = solution1(N, l)
     s2 = solution2(N, l)
@@ -371,28 +429,26 @@ for k in range(1000):
     s6 = solution6(N, l)
     s7 = solution7(N, l)
     s8 = solution8(N, l)
-    dif = s2 - s8
+    s9 = solution9(N, l)
+    dif = s2 - s9
     if dif != 0:
-        print(N, l, s2, s8)
-
+        print(N, l, s2, s9)
 
 for k in range(1):
     N = 30
     l = list(range(200000))
-    #random.shuffle(l)
+    # random.shuffle(l)
     s1 = solution1(N, l)
     s2 = solution2(N, l)
-    #s3 = solution3(N, l)
+    # s3 = solution3(N, l)
     s4 = solution4(N, l)
-    #s5 = solution5(N, l)
+    # s5 = solution5(N, l)
     s6 = solution6(N, l)
     s7 = solution7(N, l)
     s8 = solution8(N, l)
-    dif = s2 - s8
+    s9 = solution9(N, l)
+    dif = s2 - s9
     if dif != 0:
-        print(N, l, s2, s8)
-
-
+        print(N, l, s2, s9)
 
 print(measure.timers)
-
