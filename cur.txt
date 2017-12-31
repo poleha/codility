@@ -1,4 +1,3 @@
 Below 100%:
 
-min_abs_sum.py
-https://codility.com/programmers/task/min_abs_sum/
+None

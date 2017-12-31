@@ -34,6 +34,7 @@ Elements of input arrays can be modified.
 
 from measure import measure
 
+
 # stud
 # Obvioulsly slow, but I love recursions
 def step(A, L, i, cur):
@@ -46,6 +47,7 @@ def step(A, L, i, cur):
     else:
         return min(abs(cur1), abs(cur2))
 
+
 @measure
 def solution1(A):
     if not A:
@@ -54,7 +56,8 @@ def solution1(A):
     var = step(A, L, 0, 0)
     return var
 
-#*********************************************************
+
+# *********************************************************
 
 
 # Wrong approach. For example A = [3, 3, 3, 4, 5], 9 == 9. Gives wrong answer
@@ -83,7 +86,7 @@ def solution2(A):
     return min(res, mn)
 
 
-#********************************
+# ********************************
 @measure
 # 72%, correct but not fast enough
 def solution3(A):
@@ -98,7 +101,8 @@ def solution3(A):
         steps = new_steps
     return min(steps)
 
-#********************************
+
+# ********************************
 
 # stud
 def step4(A, n):
@@ -111,6 +115,7 @@ def step4(A, n):
             res.add(abs(a + A[n]))
         return res
 
+
 @measure
 def solution4(A):
     if not A:
@@ -119,9 +124,9 @@ def solution4(A):
     return min(step4(A, L - 1))
 
 
-#***********************************
+# ***********************************
 
-#81
+# 81
 @measure
 def solution5(A):
     counts = {}
@@ -142,7 +147,7 @@ def solution5(A):
     final_results = {0}
     for start, end, step in results:
         new_final_results = set()
-        for item in xrange(start, end + 1, step):
+        for item in range(start, end + 1, step):
             for final_result in final_results:
                 var1 = abs(final_result + item)
                 var2 = abs(final_result - item)
@@ -153,12 +158,12 @@ def solution5(A):
     return min(final_results)
 
 
-#Obviously super slow
+# Obviously super slow
 @measure
 def solution6(A):
     L = len(A)
     n = 0
-    for i in xrange(L):
+    for i in range(L):
         n += 2 ** i
 
     B = [abs(a) for a in A]
@@ -167,13 +172,13 @@ def solution6(A):
     bin_n = '{0:b}'.format(n)
     bin_n_len = len(bin_n)
 
-    for i in xrange(n + 1):
+    for i in range(n + 1):
         bn = '{0:b}'.format(i)
         cur_l = len(bn)
-        if cur_l < bin_n:
+        if cur_l < int(bin_n):
             bn = '0' * (bin_n_len - cur_l) + bn
         cur_s = S
-        for j in xrange(len(bn)):
+        for j in range(len(bn)):
             sym = bn[j]
             if sym == '1':
                 cur_s -= B[j] * 2
@@ -182,36 +187,69 @@ def solution6(A):
     return res
 
 
+# *****************
+# 100%
 
-
+@measure
 def solution7(A):
+    A = [abs(a) for a in A if a != 0]
+    A = sorted(A, reverse=True)
+    counts = {}
+    for cur in A:
+        if cur == 0:
+            continue
+        cur = abs(cur)
+        counts[cur] = 1 if cur not in counts else counts[cur] + 1
 
-    pass
+    all_even = True
+    for v in counts.values():
+        if v % 2 != 0:
+            all_even = False
+            break
+    if all_even:
+        return 0
+    start_s = sum(A)
+    mid = start_s / 2
+    s = 0
+    left = []
+    while s <= mid:
+        cur = A.pop()
+        s += cur
+        left.append(cur)
+    if s == mid or s - left[-1] == mid:
+        return 0
+    best_s = s
+    for i in range(len(left) - 1):
+        cur_s = s
+        for j in range(i, len(left)):
+            cur = left[j]
+            cur_s -= cur
+            if cur_s == mid:
+                return 0
+            if abs(mid - cur_s) < abs(mid - best_s):
+                best_s = cur_s
+            if cur_s < mid:
+                break
+
+    return abs(start_s - best_s * 2)
 
 
+import random
 
-#A = [1, 7, 6]
-#print(sum([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-#A = [1, 2, 3]
-#A = [1, 5, 2, -2, 1]
-#A = [1]
-#A = [2, 4, 6, 8, 14, 15]
-#A = [11, 13, 14, 10, 12]
-#print(sum(A))
-#A = [2] * 6
-#A = [3, 3, 3]
-A = [1000, 1, 1, 1, 1, 1, 1] * 3
-#A = [3, 3, 3, 4, 5] * 2
+for _ in range(100):
+    length = random.randint(1, 10)
+    A = []
+    for i in range(length):
+        cur = random.randint(-15, 15)
+        A.append(cur)
+        # sol1 = solution1(A)
+    sol2 = solution2(A)
+    sol3 = solution3(A)
+    # sol4 = solution4(A)
+    sol5 = solution5(A)
+    # sol6 = solution6(A)
+    sol7 = solution7(A)
+    if sol2 != sol7:
+        print(sol2, sol7, sol3, A)
 
-#{'solution2': 2.8848648071289062e-05, 'solution3': 0.00012493133544921875, 'solution1': 10.760171175003052}
-#A = []
-
-#sol1 = solution1(A)
-#sol2 = solution2(A)
-sol3 = solution3(A)
-#sol4 = solution4(A)
-#sol5 = solution5(A)
-sol7 = solution7(A)
-#print sol2, sol3, sol4, sol5
-print sol7, sol3
-print measure.timers
+print(measure.timers)
