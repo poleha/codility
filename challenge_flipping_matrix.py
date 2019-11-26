@@ -32,3 +32,60 @@ N * M is not greater than 100,000.
 
 
 """
+
+
+def solution(A):
+    N = len(A)
+    if N == 1:
+        return 1
+    fixed = set()
+    zeros_list = []
+    ones_list = []
+
+    for row in A:
+        zeros = set()
+        ones = set()
+        for i, elem in enumerate(row):
+            if elem == 0:
+                zeros.add(i)
+            else:
+                ones.add(i)
+        zeros_list.append(zeros)
+        ones_list.append(ones)
+    max_len = 1
+    for i in range(N):
+        count = 0
+        if i in fixed:
+            continue
+        target_zeros = zeros_list[i]
+        target_ones = ones_list[i]
+        to_change = target_zeros if len(target_zeros) <= len(target_ones) else target_ones
+        to_change = to_change.copy()
+        for zeros, ones, ind in zip(zeros_list, ones_list, range(N)):
+            if zeros == to_change or ones == to_change:
+                count += 1
+                fixed.add(ind)
+        max_len = max(max_len, count)
+    return max_len
+
+
+"""
+A = [
+    [1, 0, 0, 0, 1],
+    [1, 1, 1, 0, 0],
+    [0, 1, 0, 1, 1],
+    [0, 0, 1, 1, 1],
+    [0, 1, 0, 0, 1],
+    [1, 0, 0, 1, 1],
+    [0, 1, 1, 1, 0],
+    [1, 0, 0, 1, 1],
+    [0, 1, 0, 1, 1],
+    [1, 0, 1, 1, 0],
+    [0, 1, 1, 1, 0],
+]
+"""
+A = [[1, 1, 0, 1, 1, 1], [1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1],
+     [1, 1, 0, 1, 1, 1]]
+
+sol = solution((A))
+print(sol)
