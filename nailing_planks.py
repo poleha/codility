@@ -65,25 +65,41 @@ expected worst-case space complexity is O(M), beyond input storage (not counting
 Elements of input arrays can be modified.
 """
 
-#100% stud
+
+def solution0(A, B, C):
+    L = len(A)
+    count = 0
+    nailed = set()
+    nailed_count = 0
+    for nail in C:
+        count += 1
+        for i in range(L):
+            a = A[i]
+            b = B[i]
+            if a <= nail <= b and i not in nailed:
+                nailed.add(i)
+                nailed_count += 1
+        if nailed_count == L:
+            return count
+
+    return -1
+
+
+# 100% stud
 def bin_search(A, a):
     L = len(A)
     if L == 1:
-        if A[0] >= a:
-            return 0
-        else:
-            return -1
+        return 0
 
     step = i = L // 2
     prev_step1 = None
     prev_step2 = None
     while True:
         if step < 0 or step > L:
-            return -1
+            return 0
         new_step = step
-        i = i // 2
-        if i == 0:
-            i = 1
+        i //= 2
+        i = i or 1
         if step > L - 1:
             step = L - 1
         cur = A[step]
@@ -103,32 +119,32 @@ def bin_search(A, a):
 
 
 def solution(A, B, C):
-    L = len(A)
     nail_positions = {}
-    for i in xrange(len(C)):
-        nail = C[i]
+    for i, nail in enumerate(C):
         if nail not in nail_positions:
             nail_positions[nail] = i
 
     sorted_nails = sorted(list(set(C)))
     sorted_nails_len = len(sorted_nails)
+    first_nail = sorted_nails[0]
+    last_nail = sorted_nails[-1]
 
     max_nail_required = None
-    for i in xrange(L):
-        a = A[i]
-        b = B[i]
+    for a, b in zip(A, B):
+        if a > last_nail or b < first_nail:
+            return -1
         min_nail_required = None
         start = bin_search(sorted_nails, a)
-        if start == -1:
-            continue
-        for j in xrange(start, sorted_nails_len):
+        for j in range(start, sorted_nails_len):
             nail = sorted_nails[j]
             if nail > b:
                 break
+            if nail < a:
+                continue
 
             nail_position = nail_positions[nail]
 
-            if nail_position <= max_nail_required:
+            if max_nail_required is not None and nail_position <= max_nail_required:
                 min_nail_required = nail_position
                 break
             if min_nail_required is None:
@@ -143,21 +159,20 @@ def solution(A, B, C):
                 max_nail_required = min_nail_required
             else:
                 max_nail_required = max(min_nail_required, max_nail_required)
-        else:
-            return -1
 
     if max_nail_required is not None:
         return max_nail_required + 1
 
     return -1
 
-"""
+
 import random
-for i in range(1):
-    C = range(5)
+
+for i in range(1000):
+    C = list(range(50))
     random.shuffle(C)
 
-    A = list(range(6))
+    A = list(range(50))
     random.shuffle(A)
 
     dist = list(range(10))
@@ -177,13 +192,19 @@ for i in range(1):
 #B = [4, 5, 9, 10]
 #C = [4, 6, 7, 10, 1]
 
-A = [1, 3]
-B = [2, 4]
-C = [2, 3]
+#A = [1, 3]
+#B = [2, 4]
+#C = [2, 3]
 
+A = [5]
+B = [12]
+C = [4, 2, 3, 0, 1]
+
+sol0 = solution0(A, B, C)
+print(sol0)
 sol = solution(A, B, C)
-print sol
-
+print(sol)
+"""
 """
 # 50%
 def solution(A, B, C):
@@ -228,8 +249,6 @@ def solution(A, B, C):
     return -1
 """
 
-
-
 """
 # 62%
 def solution(A, B, C):
@@ -260,7 +279,6 @@ def solution(A, B, C):
     return -1
 
 """
-
 
 """
 # 75%
@@ -337,4 +355,3 @@ def solution(A, B, C):
 
     return -1
 """
-
