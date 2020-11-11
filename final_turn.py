@@ -157,21 +157,60 @@ def solution1(X, Y, T):
 
     return max_points
 
+from collections import defaultdict
+def solution2(X, Y, T):
+    xy = zip(X, Y)
+    xy = sorted(xy, key=lambda v:v[1], reverse=True)
+    lines_plus = defaultdict(list)
+    lines_minus = defaultdict(list)
+    for x, y in xy:
+        b_plus = y - x
+        b_minus = y + x
+        lines_plus[b_plus].append((x, y))
+        lines_minus[b_minus].append((x, y))
+
+    path = defaultdict(list)
+
+    for x, y in xy:
+        b_plus = y - x
+        b_minus = y + x
+        line_plus = lines_plus[b_plus]
+        line_minus = lines_plus[b_minus]
+
+        plus_found = False
+        for x1, y1 in line_plus:
+            if y1 < y:
+                plus_found = True
+                b_minus_stop = x1 + y1
+                break
+        if plus_found:
+            for b_minus1 in lines_minus:
+                if b_minus_stop < b_minus1 < b_minus:
+                    line_minus1 = lines_minus[b_minus1]
+                    for x2, y2 in line_minus1:
+                        if y2 + x2 < b_minus:
+                            path[(x, y)].append((x2, y2))
+                            break
+
+
+    print(path)
+    return xy
 
 values = (
-    ([3, 5, 1, 6], [1, 3, 3, 8], "Xpqp"),
-    ([0, 6, 2, 5, 3, 0], [4, 8, 2, 3, 1, 6], 'ppqpXp'),
-    ([0, 1], [2, 1], 'Xp'),
-    ([0, 1, 2], [0, 1, 2], 'Xpq'),
-    ([0, 2, 1], [0, 2, 19], 'Xpq'),
-    ([0, 1, 2], [0, 1, 2], 'Xpp'),
-    ([0, 1, 1], [1, 0, 4], 'pXp'),
-    ([2, 0, 0], [0, 2, 4], 'Xpp'),
-    ([2, 0, 0], [0, 2, 6], 'Xpp'),
-    ([1, 0, 0], [0, 1, 1115], 'Xpp'),
-    ([0, 1, 1, 1], [0, 1, 9, 11], 'Xppp'),
+    ([-2, 0, 3, 1, 0, 3], [0, 2, 5, 7, 8, 1], "Xpppp"),
+    #([3, 5, 1, 6], [1, 3, 3, 8], "Xpqp"),
+    #([0, 6, 2, 5, 3, 0], [4, 8, 2, 3, 1, 6], 'ppqpXp'),
+    #([0, 1], [2, 1], 'Xp'),
+    #([0, 1, 2], [0, 1, 2], 'Xpq'),
+    #([0, 2, 1], [0, 2, 19], 'Xpq'),
+    #([0, 1, 2], [0, 1, 2], 'Xpp'),
+    #([0, 1, 1], [1, 0, 4], 'pXp'),
+    #([2, 0, 0], [0, 2, 4], 'Xpp'),
+    #([2, 0, 0], [0, 2, 6], 'Xpp'),
+    #([1, 0, 0], [0, 1, 1115], 'Xpp'),
+    #([0, 1, 1, 1], [0, 1, 9, 11], 'Xppp'),
 )
 
 for X, Y, T in values:
-    sol = solution1(X, Y, T)
+    sol = solution2(X, Y, T)
     print(sol)
