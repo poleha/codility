@@ -4,20 +4,23 @@ from collections import OrderedDict
 
 def measure(func):
     key = func.__name__
-    measure.timers[key] = 0
-    measure.calls[key] = 0
+    if key not in measure.wrappers:
+        measure.timers[key] = 0
+        measure.calls[key] = 0
 
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        res = func(*args, **kwargs)
-        end = time.time()
-        measure.timers[key] += end - start
-        measure.calls[key] += 1
-        return res
-    return wrapper
+        def wrapper(*args, **kwargs):
+            start = time.time()
+            res = func(*args, **kwargs)
+            end = time.time()
+            measure.timers[key] += end - start
+            measure.calls[key] += 1
+            return res
+        measure.wrappers[key] = wrapper
+    return measure.wrappers[key]
 
 measure.timers = OrderedDict()
 measure.calls = OrderedDict()
+measure.wrappers = OrderedDict()
 
 
 class MeasureBlock:
