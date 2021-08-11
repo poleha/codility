@@ -68,6 +68,8 @@ N - форм
 K - вкусов
 A - B start - end
 C = вкус
+Просмотреть их:
+https://app.codility.com/programmers/challenges/great_code_off2021/
 """
 from measure import measure
 
