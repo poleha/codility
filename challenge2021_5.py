@@ -179,7 +179,7 @@ from string import ascii_lowercase
 import bisect
 from collections import defaultdict
 # 84%
-def solution(S, K):
+def solutionEWSEF(S, K):
     def simple_solution(C, K):
         return C
 
@@ -210,10 +210,80 @@ def solution(S, K):
 
 
 
+from string import ascii_lowercase
+from collections import defaultdict
+
+def solutionFDDF(S, K):
+    key_map = {s: i for (i, s) in enumerate(ascii_lowercase)}
+    key_map_rev = {i: s for (i, s) in enumerate(ascii_lowercase)}
+    C = [key_map[s] for s in S]
+    k_left = K
+    result = []
+    while k_left and C:
+        min_e = C[0]
+        min_i = 0
+        for i in range(k_left + 1):
+            try:
+                e = C[i]
+            except IndexError:
+                break
+            if e < min_e or e == 0:
+                min_e = e
+                min_i = i
+                if e == 0:
+                    break
+        result.append(C.pop(min_i))
+        k_left -= min_i
+    return ''.join(key_map_rev[c] for c in result + C)
+
+
+from string import ascii_lowercase
+from collections import defaultdict
+import bisect
+
+def solution(S, K):
+    key_map = {s: i for (i, s) in enumerate(ascii_lowercase)}
+    key_map_rev = {i: s for (i, s) in enumerate(ascii_lowercase)}
+    C = [key_map[s] for s in S]
+    k_left = K
+    result = []
+    counts = defaultdict(int)
+
+    c = C[:k_left]
+    sorted_c = sorted(c)
+    for e in c:
+        counts[e] += 1
+
+    while k_left:
+        min_elem = sorted_c[0]
+        min_elem_pos = next(e for e in C[:k_left] if e == min_elem)
+        try:
+            C.pop(min_elem_pos)
+        except IndexError:
+            break
+
+        counts[min_elem] -= 1
+        result.append(min_elem)
+        if not counts[min_elem]:
+            del counts[min_elem]
+            sorted_c.pop(0)
+        k_left -= min_elem_pos
+        if not min_elem_pos:
+            try:
+                new_elem = C[k_left]
+            except IndexError:
+                pass
+            else:
+                counts[new_elem] += 1
+                bisect.insort_left(sorted_c, new_elem)
+
+    return ''.join(key_map_rev[c] for c in result + C)
+
+
 S = 'abfdhfhfgracadabdrewra'
 #S = 'bbaa'
 K = 6
 
 sol0 = solution0(S, K)
 sol = solution(S, K)
-print(sol, sol0==sol)
+print(sol, sol0, sol0==sol)
