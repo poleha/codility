@@ -37,10 +37,11 @@ N is an integer within the range [1..M];
 array A is sorted in increasing order;
 the elements of A are all distinct.
 
-GOLD:
-https://app.codility.com/cert/view/certTW5ZTB-Z6A6F9BFVDMXFRCJ/
-
 """
+
+#GOLD:
+#https://app.codility.com/cert/view/certTW5ZTB-Z6A6F9BFVDMXFRCJ/
+
 from measure import measure
 
 import sys
